@@ -1,18 +1,18 @@
 import Foundation
 
 class Container {
-    fileprivate static var registrations = [AnyHashable : () -> AnyObject]()
     
+    fileprivate static var registrations = [AnyHashable : () -> Any]()
     
-    static func register<T>(_: T.Type, constructor: @escaping () -> AnyObject) {
+    static func register<T>(_: T.Type, constructor: @escaping () -> Any) {
         let dependencyName = String(describing: T.self)
         registrations[dependencyName] = constructor
     }
     
-    static func registerAsSingleton<T>(_: T.Type, constructor: @escaping () -> AnyObject) {
+    static func registerAsSingleton<T>(_: T.Type, constructor: @escaping () -> Any) {
         let dependencyName = String(describing: T.self)
-        var instance: AnyObject?
-        let resolver: () -> AnyObject = {
+        var instance: Any?
+        let resolver: () -> Any = {
             if instance == nil {
                 instance = constructor()
                 return instance!
@@ -23,6 +23,7 @@ class Container {
         registrations[dependencyName] = resolver
     }
     
+    //Weak may only be applied to class and class-bound types, not 'Any'
     static func registerWeakSingleton<T>(_: T.Type, constructor: @escaping () -> AnyObject) {
         let dependencyName = String(describing: T.self)
         var instance: AnyObject?
