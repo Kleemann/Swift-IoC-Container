@@ -1,4 +1,4 @@
-# Swift-IoC-Container
+# Swift IoC Container
 Simple IoC container for registering and resolving dependencies, written in Swift 3.0
 
 ## Usage
