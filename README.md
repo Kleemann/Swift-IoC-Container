@@ -5,7 +5,7 @@ Simple IoC container for registering and resolving dependencies, written in Swif
 
 ### Register dependencies
 ```swift
- Container.registerAsSingleton(APIManager.self) { NetworkManager(withProxy: AlamofireProxyImplementation()) }
+ Container.registerAsSingleton(APIManager.self, constructor: NetworkManager(withProxy: AlamofireProxyImplementation()))
 ```
 For networking abstraction see [Swift Network Abstraction](https://github.com/Kleemann/Swift-Network-Abstraction)
 ### Resolve dependencies

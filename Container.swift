@@ -3,13 +3,14 @@ import Foundation
 class Container {
     
     fileprivate static var registrations = [AnyHashable : () -> Any]()
+    fileprivate static var lock = NSRecursiveLock()
     
-    static func register<T>(_: T.Type, constructor: @escaping () -> Any) {
+    static func register<T>(_: T.Type, constructor: @autoclosure @escaping () -> Any) {
         let dependencyName = String(describing: T.self)
         registrations[dependencyName] = constructor
     }
     
-    static func registerAsSingleton<T>(_: T.Type, constructor: @escaping () -> Any) {
+    static func registerAsSingleton<T>(_: T.Type, constructor: @autoclosure @escaping () -> Any) {
         let dependencyName = String(describing: T.self)
         var instance: Any?
         let resolver: () -> Any = {
@@ -24,7 +25,7 @@ class Container {
     }
     
     //Weak may only be applied to class and class-bound types, not 'Any'
-    static func registerWeakSingleton<T>(_: T.Type, constructor: @escaping () -> AnyObject) {
+    static func registerWeakSingleton<T>(_: T.Type, constructor: @autoclosure @escaping () -> AnyObject) {
         let dependencyName = String(describing: T.self)
         var instance: AnyObject?
         instance = nil
@@ -32,7 +33,7 @@ class Container {
             if let instance = instance {
                 return instance
             } else {
-                let newInstance = constructor()
+                let newInstance = threadSafe(constructor())
                 instance = newInstance
                 return newInstance
             }
@@ -54,5 +55,12 @@ class Container {
     static func remove<T>(type: T.Type) {
         let dependencyName = String(reflecting: T.self)
         registrations.removeValue(forKey: dependencyName)
+    }
+    
+    fileprivate static func threadSafe<T>(_ closure: @autoclosure ()->T) -> T {
+        lock.lock()
+        defer { lock.unlock() }
+        return closure()
+        
     }
 }
